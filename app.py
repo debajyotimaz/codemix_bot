@@ -1,6 +1,5 @@
 import gradio as gr
 import os
-import spaces
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer
 from threading import Thread
 
@@ -44,20 +43,16 @@ h1 {
 tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B", token=HF_TOKEN)
 model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-1B", device_map="auto", token=HF_TOKEN)
 
-# Manually define the chat template
+# Fix chat formatting
 def format_chat_history(history, message):
     chat_str = ""
     for user, assistant in history:
-        chat_str += f"<s>[INST] {user} [/INST] {assistant}</s>\n"
-    chat_str += f"<s>[INST] {message} [/INST]"
-    return chat_str
+        chat_str += f"[INST] {user} [/INST] {assistant}\n"
+    chat_str += f"[INST] {message} [/INST]"
+    return chat_str.strip()
 
-terminators = [
-    tokenizer.eos_token_id,
-    tokenizer.convert_tokens_to_ids("<|eot_id|>")
-]
+terminators = [tokenizer.eos_token_id]
 
-@spaces.GPU(duration=120)
 def chat_llama3_1b(message: str, history: list, temperature: float, max_new_tokens: int):
     conversation = format_chat_history(history, message)
 
@@ -69,13 +64,11 @@ def chat_llama3_1b(message: str, history: list, temperature: float, max_new_toke
         input_ids=input_ids,
         streamer=streamer,
         max_new_tokens=max_new_tokens,
-        do_sample=True,
+        do_sample=(temperature > 0),
         temperature=temperature,
         eos_token_id=terminators,
     )
-    if temperature == 0:
-        generate_kwargs['do_sample'] = False
-        
+    
     t = Thread(target=model.generate, kwargs=generate_kwargs)
     t.start()
 
@@ -84,18 +77,17 @@ def chat_llama3_1b(message: str, history: list, temperature: float, max_new_toke
         outputs.append(text)
         yield "".join(outputs)
 
-# Gradio block
-chatbot = gr.Chatbot(height=450, label='Gradio ChatInterface')
-
+# Gradio UI
 with gr.Blocks(css=css) as demo:
     gr.Markdown(DESCRIPTION)
     gr.DuplicateButton(value="Duplicate Space for private use", elem_id="duplicate-button")
+
     gr.ChatInterface(
         fn=chat_llama3_1b,
-        chatbot=chatbot,
+        chatbot=gr.Chatbot(height=450, label="Gradio ChatInterface"),
         additional_inputs=[
-            gr.Slider(minimum=0, maximum=1, step=0.1, value=0.95, label="Temperature", render=False),
-            gr.Slider(minimum=128, maximum=4096, step=1, value=512, label="Max new tokens", render=False),
+            gr.Slider(minimum=0, maximum=1, step=0.1, value=0.95, label="Temperature"),
+            gr.Slider(minimum=128, maximum=4096, step=1, value=512, label="Max new tokens"),
         ],
         examples=[
             ['How to set up a human base on Mars?'],
