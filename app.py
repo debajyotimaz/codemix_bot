@@ -88,7 +88,6 @@ with gr.Blocks(css=css) as demo:
     gr.ChatInterface(
         fn=chat_llama3_1b,
         chatbot=chatbot,
-        additional_inputs_accordion=gr.Accordion(label="⚙️ Parameters", open=False, render=False),
         additional_inputs=[
             gr.Slider(minimum=0, maximum=1, step=0.1, value=0.95, label="Temperature", render=False),
             gr.Slider(minimum=128, maximum=4096, step=1, value=512, label="Max new tokens", render=False),
