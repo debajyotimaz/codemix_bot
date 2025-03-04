@@ -8,6 +8,8 @@ HF_TOKEN = os.environ.get("HF_TOKEN", None)
 
 # Load the tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B", token=HF_TOKEN)
+tokenizer.pad_token = tokenizer.eos_token  # Fix padding issue ✅
+
 model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-1B", device_map="auto", token=HF_TOKEN)
 
 # ✅ **Fixed Chat History Formatting**
@@ -19,14 +21,16 @@ def format_chat_history(history, message):
     return chat_str
 
 # ✅ **Fix EOS Handling**
-eos_token = tokenizer.eos_token_id  # Ensure it's in vocab
+eos_token = tokenizer.eos_token_id
 
 @spaces.GPU(duration=120)
 def chat_llama3_1b(message: str, history: list, temperature: float, max_new_tokens: int):
     conversation = format_chat_history(history, message)
 
     # ✅ **Fix Input Tokenization**
-    input_ids = tokenizer(conversation, return_tensors="pt", padding=True, truncation=True).input_ids.to(model.device)
+    input_ids = tokenizer(
+        conversation, return_tensors="pt", padding=True, truncation=True
+    ).input_ids.to(model.device)
 
     # ✅ **Ensure Streamer Works Properly**
     streamer = TextIteratorStreamer(tokenizer, timeout=10.0, skip_prompt=True, skip_special_tokens=True)
@@ -38,9 +42,10 @@ def chat_llama3_1b(message: str, history: list, temperature: float, max_new_toke
         "do_sample": temperature > 0,
         "temperature": temperature,
         "eos_token_id": eos_token,
+        "pad_token_id": tokenizer.pad_token_id,  # Fix padding ✅
     }
 
-    # ✅ **Remove Unnecessary Threading (Fixing Streaming Issues)**
+    # ✅ **Fix Streaming**
     model.generate(**generate_kwargs)
 
     outputs = []
