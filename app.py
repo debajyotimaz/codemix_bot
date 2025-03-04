@@ -41,8 +41,8 @@ h1 {
 """
 
 # Load the tokenizer and model with authentication
-tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B", use_auth_token=HF_TOKEN)
-model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-1B", device_map="auto", use_auth_token=HF_TOKEN)
+tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B", token=HF_TOKEN)
+model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-1B", device_map="auto", token=HF_TOKEN)
 
 terminators = [
     tokenizer.eos_token_id,
@@ -80,15 +80,14 @@ def chat_llama3_1b(message: str, history: list, temperature: float, max_new_toke
         yield "".join(outputs)
 
 # Gradio block
-chatbot = gr.Chatbot(height=450, placeholder=PLACEHOLDER, label='Gradio ChatInterface')
+chatbot = gr.Chatbot(height=450, label='Gradio ChatInterface')
 
-with gr.Blocks(fill_height=True, css=css) as demo:
+with gr.Blocks(css=css) as demo:
     gr.Markdown(DESCRIPTION)
     gr.DuplicateButton(value="Duplicate Space for private use", elem_id="duplicate-button")
     gr.ChatInterface(
         fn=chat_llama3_1b,
         chatbot=chatbot,
-        fill_height=True,
         additional_inputs_accordion=gr.Accordion(label="⚙️ Parameters", open=False, render=False),
         additional_inputs=[
             gr.Slider(minimum=0, maximum=1, step=0.1, value=0.95, label="Temperature", render=False),
