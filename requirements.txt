@@ -1,2 +1,3 @@
-gradio
-ollama
+accelerate
+transformers
+SentencePiece
