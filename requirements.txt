@@ -1,3 +1,5 @@
-accelerate
+gradio
 transformers
-SentencePiece
+torch
+accelerate
+huggingface_hub
