@@ -44,19 +44,24 @@ h1 {
 tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-1B", token=HF_TOKEN)
 model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-1B", device_map="auto", token=HF_TOKEN)
 
+# Manually define the chat template
+def format_chat_history(history, message):
+    chat_str = ""
+    for user, assistant in history:
+        chat_str += f"<s>[INST] {user} [/INST] {assistant}</s>\n"
+    chat_str += f"<s>[INST] {message} [/INST]"
+    return chat_str
+
 terminators = [
     tokenizer.eos_token_id,
     tokenizer.convert_tokens_to_ids("<|eot_id|>")
 ]
 
 @spaces.GPU(duration=120)
-def chat_llama3_1b(message: str, history: list, temperature: float, max_new_tokens: int) -> str:
-    conversation = []
-    for user, assistant in history:
-        conversation.extend([{"role": "user", "content": user}, {"role": "assistant", "content": assistant}])
-    conversation.append({"role": "user", "content": message})
+def chat_llama3_1b(message: str, history: list, temperature: float, max_new_tokens: int):
+    conversation = format_chat_history(history, message)
 
-    input_ids = tokenizer.apply_chat_template(conversation, return_tensors="pt").to(model.device)
+    input_ids = tokenizer(conversation, return_tensors="pt").input_ids.to(model.device)
     
     streamer = TextIteratorStreamer(tokenizer, timeout=10.0, skip_prompt=True, skip_special_tokens=True)
 
