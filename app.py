@@ -1,8 +1,33 @@
 import os
 import subprocess
+import sys
 import time
 import requests
 import gradio as gr
+
+def install_ollama():
+    """Install Ollama on Hugging Face Spaces"""
+    try:
+        # Download Ollama installation script
+        subprocess.run([
+            "curl", "-fsSL", "https://ollama.com/install.sh", 
+            "-o", "/tmp/install-ollama.sh"
+        ], check=True)
+        
+        # Make the script executable
+        subprocess.run(["chmod", "+x", "/tmp/install-ollama.sh"], check=True)
+        
+        # Run the installation script
+        subprocess.run(["/tmp/install-ollama.sh"], check=True)
+        
+        print("✅ Ollama installed successfully")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Ollama installation failed: {e}")
+        return False
+    except Exception as e:
+        print(f"❌ Unexpected error during Ollama installation: {e}")
+        return False
 
 # Function to check if Ollama is running
 def is_ollama_running():
@@ -14,13 +39,8 @@ def is_ollama_running():
 
 # Function to start Ollama service
 def start_ollama():
-    # Check if Ollama is already running
-    if is_ollama_running():
-        print("✅ Ollama is already running")
-        return True
-    
     try:
-        # Start Ollama service
+        # Attempt to start Ollama service
         subprocess.Popen(["ollama", "serve"], start_new_session=True)
         
         # Wait for Ollama to start
@@ -31,6 +51,11 @@ def start_ollama():
             time.sleep(1)
         
         print("❌ Failed to start Ollama service")
+        return False
+    except FileNotFoundError:
+        # If Ollama is not found, try to install
+        if install_ollama():
+            return start_ollama()
         return False
     except Exception as e:
         print(f"Error starting Ollama: {e}")
@@ -104,6 +129,10 @@ def chat_with_ollama(message, history):
         return f"Error in chat: {e}"
 
 def main():
+    # Install Ollama if not present
+    if not install_ollama():
+        raise RuntimeError("Failed to install Ollama")
+    
     # Start Ollama service
     if not start_ollama():
         raise RuntimeError("Ollama service failed to start")
