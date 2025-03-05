@@ -53,7 +53,106 @@ def install_ollama():
         print(f"❌ Ollama installation failed: {e}")
         return False
 
-# Rest of the script remains the same as in the previous version...
+def is_ollama_running():
+    """Check if Ollama service is running"""
+    try:
+        response = requests.get("http://localhost:11434/api/version", timeout=5)
+        return response.status_code == 200
+    except:
+        return False
+
+def start_ollama():
+    """Start Ollama service"""
+    try:
+        ollama_path = os.path.expanduser("~/bin/ollama")
+        if not os.path.exists(ollama_path):
+            print("Ollama binary not found. Attempting installation...")
+            return False
+        
+        # Start Ollama service
+        subprocess.Popen([ollama_path, "serve"], start_new_session=True)
+        
+        # Wait for Ollama to start
+        for _ in range(30):  # Try for 30 seconds
+            if is_ollama_running():
+                print("✅ Ollama service started successfully")
+                return True
+            time.sleep(1)
+        
+        print("❌ Failed to start Ollama service")
+        return False
+    except Exception as e:
+        print(f"Error starting Ollama: {e}")
+        return False
+
+def pull_model(model_name):
+    """Pull Ollama model"""
+    try:
+        ollama_path = os.path.expanduser("~/bin/ollama")
+        
+        # Pull the model using subprocess
+        result = subprocess.run(
+            [ollama_path, "pull", model_name], 
+            capture_output=True, 
+            text=True,
+            timeout=600  # 10-minute timeout
+        )
+        
+        if result.returncode == 0:
+            print(f"✅ Successfully pulled {model_name}")
+            return True
+        else:
+            print(f"❌ Failed to pull {model_name}")
+            print(result.stderr)
+            return False
+    except subprocess.TimeoutExpired:
+        print(f"❌ Model pull timed out: {model_name}")
+        return False
+    except Exception as e:
+        print(f"Error pulling model: {e}")
+        return False
+
+def chat_with_ollama(message, history):
+    """Chat with Ollama model"""
+    try:
+        # Prepare the API request
+        payload = {
+            "model": "llama3.2:1b",
+            "messages": [
+                {"role": "system", "content": "You are a helpful assistant."}
+            ] + [
+                {"role": "user" if idx % 2 == 0 else "assistant", "content": msg} 
+                for sublist in history for idx, msg in enumerate(sublist)
+            ] + [
+                {"role": "user", "content": message}
+            ]
+        }
+        
+        # Send request to Ollama
+        response = requests.post(
+            "http://localhost:11434/api/chat", 
+            json=payload,
+            timeout=30
+        )
+        
+        # Check response
+        if response.status_code == 200:
+            # Stream the response
+            full_response = ""
+            for line in response.iter_lines():
+                if line:
+                    json_response = line.decode('utf-8')
+                    if '"done":true' in json_response:
+                        break
+                    if '"content"' in json_response:
+                        chunk = json_response.split('"content":"')[1].split('","')[0]
+                        full_response += chunk
+        else:
+            full_response = f"Error: {response.status_code} - {response.text}"
+        
+        return full_response
+    except Exception as e:
+        return f"Error in chat: {e}"
 
 def main():
     # Print system information for debugging
