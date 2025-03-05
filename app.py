@@ -14,7 +14,8 @@ def wait_for_ollama():
             pass
         print("⏳ Waiting for Ollama to start...")
         time.sleep(2)
-    raise RuntimeError("❌ Ollama failed to start.")
+    print("❌ Ollama failed to start. Check logs.")
+    exit(1)
 
 # Call the waiting function
 wait_for_ollama()
