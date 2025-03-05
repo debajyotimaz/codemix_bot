@@ -6,27 +6,33 @@ import requests
 import gradio as gr
 
 def install_ollama():
-    """Install Ollama on Hugging Face Spaces"""
+    """Install Ollama without sudo on Hugging Face Spaces"""
     try:
-        # Download Ollama installation script
-        subprocess.run([
-            "curl", "-fsSL", "https://ollama.com/install.sh", 
-            "-o", "/tmp/install-ollama.sh"
-        ], check=True)
+        # Create a local bin directory if it doesn't exist
+        os.makedirs(os.path.expanduser("~/bin"), exist_ok=True)
         
-        # Make the script executable
-        subprocess.run(["chmod", "+x", "/tmp/install-ollama.sh"], check=True)
+        # Download Ollama binary directly
+        print("Downloading Ollama binary...")
+        download_result = subprocess.run([
+            "curl", "-L", "https://ollama.com/download/ollama-linux-amd64",
+            "-o", os.path.expanduser("~/bin/ollama")
+        ], capture_output=True, text=True)
         
-        # Run the installation script
-        subprocess.run(["/tmp/install-ollama.sh"], check=True)
+        if download_result.returncode != 0:
+            print(f"Download failed: {download_result.stderr}")
+            return False
         
-        print("✅ Ollama installed successfully")
+        # Make the binary executable
+        subprocess.run(["chmod", "+x", os.path.expanduser("~/bin/ollama")], check=True)
+        
+        # Add to PATH
+        os.environ['PATH'] = f"{os.path.expanduser('~/bin')}:{os.environ.get('PATH', '')}"
+        
+        print("✅ Ollama installed successfully in user directory")
         return True
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Ollama installation failed: {e}")
-        return False
+    
     except Exception as e:
-        print(f"❌ Unexpected error during Ollama installation: {e}")
+        print(f"❌ Ollama installation failed: {e}")
         return False
 
 # Function to check if Ollama is running
@@ -40,8 +46,14 @@ def is_ollama_running():
 # Function to start Ollama service
 def start_ollama():
     try:
-        # Attempt to start Ollama service
-        subprocess.Popen(["ollama", "serve"], start_new_session=True)
+        ollama_path = os.path.expanduser("~/bin/ollama")
+        if not os.path.exists(ollama_path):
+            print("Ollama binary not found. Attempting installation...")
+            if not install_ollama():
+                return False
+        
+        # Start Ollama service without sudo
+        subprocess.Popen([ollama_path, "serve"], start_new_session=True)
         
         # Wait for Ollama to start
         for _ in range(30):  # Try for 30 seconds
@@ -52,11 +64,6 @@ def start_ollama():
         
         print("❌ Failed to start Ollama service")
         return False
-    except FileNotFoundError:
-        # If Ollama is not found, try to install
-        if install_ollama():
-            return start_ollama()
-        return False
     except Exception as e:
         print(f"Error starting Ollama: {e}")
         return False
@@ -64,9 +71,11 @@ def start_ollama():
 # Function to pull the model
 def pull_model(model_name):
     try:
+        ollama_path = os.path.expanduser("~/bin/ollama")
+        
         # Pull the model using subprocess
         result = subprocess.run(
-            ["ollama", "pull", model_name], 
+            [ollama_path, "pull", model_name], 
             capture_output=True, 
             text=True,
             timeout=600  # 10-minute timeout
