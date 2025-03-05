@@ -1,17 +1,9 @@
-# Core ML and AI Libraries
+# Core AI and Web Libraries
 torch>=2.2.0
 transformers>=4.37.0
-accelerate>=0.26.0
-sentencepiece>=0.1.99
-protobuf>=3.20,<4.24
-huggingface_hub>=0.21.0
-
-# Numerical and Scientific Computing
-numpy>=1.24.0
-
-# Web and API Interactions
-requests>=2.31.0
-ollama>=0.1.0
-
-# UI Framework
 gradio>=4.16.0
+requests>=2.31.0
+
+# Optional but recommended
+numpy>=1.24.0
+accelerate>=0.26.0
