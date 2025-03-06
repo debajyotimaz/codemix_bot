@@ -2,22 +2,7 @@ import time
 import requests
 from ollama import chat
 
-# Wait for Ollama to start
-def wait_for_ollama():
-    for _ in range(30):  # Try for ~30 seconds
-        try:
-            response = requests.get("http://localhost:11434/api/status")
-            if response.status_code == 200:
-                print("✅ Ollama is running!")
-                return
-        except requests.exceptions.ConnectionError:
-            pass
-        print("⏳ Waiting for Ollama to start...")
-        time.sleep(2)
-    raise RuntimeError("❌ Ollama failed to start.")
 
-# Call the waiting function
-wait_for_ollama()
 
 # Initialize message history
 messages = []
