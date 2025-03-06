@@ -1,9 +1,7 @@
-# Core AI and Web Libraries
 torch>=2.2.0
 transformers>=4.37.0
 gradio>=4.16.0
 requests>=2.31.0
-
-# Optional but recommended
 numpy>=1.24.0
 accelerate>=0.26.0
+ollama
