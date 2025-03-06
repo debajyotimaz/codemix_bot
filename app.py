@@ -24,7 +24,7 @@ wait_for_ollama()
 messages = []
 
 # Function to handle chat interactions using Ollama
-def chat_with_ollama(message, history):
+
 def chat_with_ollama(user_input):
     global messages
 
