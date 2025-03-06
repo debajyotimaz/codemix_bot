@@ -1,18 +1,29 @@
 FROM python:3.10
+# Use an Ubuntu base image
+FROM ubuntu:22.04
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y curl
+# Set non-interactive mode for apt
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies
+RUN apt update && apt install -y \
+    curl \
+    git \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
-
-# Install Python dependencies
-COPY requirements.txt /app/requirements.txt
-WORKDIR /app
-RUN pip install --no-cache-dir -r requirements.txt
-
+@@ -14,5 +22,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY . /app
 
 # Start Ollama and run the app
 CMD ollama serve & python app.py
+# Expose the necessary ports
+EXPOSE 7860
+
+# Start Ollama as a background process before running the app
+CMD ollama serve & python3 app.py
