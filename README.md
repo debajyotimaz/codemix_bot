@@ -26,5 +26,5 @@ Thanks to all who contributed:
 
 <a href="https://github.com/debajyotimaz"><img src="https://avatars.githubusercontent.com/u/44441963?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Debajyoti</b></sub></a><br /><td align="center">
 
-<a href="https://github.com/tituatgithub"><img src="https://avatars.githubusercontent.com/u/10690171?v=4?s=100" width="100px;" alt=""/><br /><sub><b>titucodes</b></sub></a><br />
+<a href="https://github.com/tituatgithub"><img src="https://avatars.githubusercontent.com/u/10690171?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Divyansh</b></sub></a><br />
   </tr></table>
