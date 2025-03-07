@@ -18,7 +18,7 @@ Chatbot that replies in codemix
 
 
 ## Acknowledgement & Contributors : 
-Thanks to all who contributed, especially:
+Thanks to all who contributed:
 
 <table>
   <tr>
