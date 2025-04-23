@@ -1,5 +1,3 @@
-# Code-mixed Chatbot
-
 ---
 title: "Codemix-Bot"
 emoji: "🤖"
@@ -11,21 +9,37 @@ app_file: "app.py"
 pinned: false
 ---
 
-### Current features:
-  1) Respond in English language.
 
-### To do's:
-  1) Respond in Hindi-English code-mixed setting.
+# Code-Mixed Chatbot
 
+A lightweight chatbot built using Gradio that currently responds in English. Future enhancements include code-mixed Hindi-English capabilities.
 
-## Acknowledgement & Contributors : 
-Thanks to all who contributed:
+---
+
+### ✨ Current Features
+- Responds in English
+
+### ✅ To-dos
+- [ ] Add Hindi-English code-mixed responses
+
+---
+
+## 🙏 Acknowledgements & Contributors
 
 <table>
   <tr>
     <td align="center">
+      <a href="https://github.com/debajyotimaz">
+        <img src="https://avatars.githubusercontent.com/u/44441963?v=4?s=100" width="100px;" alt="Debajyoti"/><br />
+        <sub><b>Debajyoti</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/tituatgithub">
+        <img src="https://avatars.githubusercontent.com/u/10690171?v=4?s=100" width="100px;" alt="Divyansh"/><br />
+        <sub><b>Divyansh</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
 
-<a href="https://github.com/debajyotimaz"><img src="https://avatars.githubusercontent.com/u/44441963?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Debajyoti</b></sub></a><br /><td align="center">
-
-<a href="https://github.com/tituatgithub"><img src="https://avatars.githubusercontent.com/u/10690171?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Divyansh</b></sub></a><br />
-  </tr></table>
